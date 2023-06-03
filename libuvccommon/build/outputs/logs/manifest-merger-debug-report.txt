@@ -1,0 +1,25 @@
+-- Merging decision tree log ---
+manifest
+ADDED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml:1:1-3:12
+INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml:1:1-3:12
+INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml:1:1-3:12
+	package
+		ADDED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml:2:2-30
+		INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+		INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+	xmlns:android
+		ADDED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml:1:1-3:12
+uses-sdk
+INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+		ADDED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+		INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+		ADDED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
+		INJECTED from /Users/hyunwook/Documents/android/AndroidUSBCamera/libuvccommon/src/main/AndroidManifest.xml
