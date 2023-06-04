@@ -69,15 +69,8 @@ import java.util.*
  *
  * @author Created by jiangdg on 2022/1/28
  */
-class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.OnViewClickListener {
-    private lateinit var mMoreBindingView: DialogMoreBinding
-    private var mMoreMenu: PopupWindow? = null
+class DemoFragment : CameraFragment(), CaptureMediaView.OnViewClickListener {
     private var isCapturingVideoOrAudio: Boolean = false
-    private var isPlayingMic: Boolean = false
-    private var mRecTimer: Timer? = null
-    private var mRecSeconds = 0
-    private var mRecMinute = 0
-    private var mRecHours = 0
 
 
     private val mEffectDataList by lazy {
@@ -108,24 +101,6 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         )
     }
 
-
-    private val mMainHandler: Handler by lazy {
-        Handler(Looper.getMainLooper()) {
-            when (it.what) {
-                WHAT_START_TIMER -> {
-                    if (mRecSeconds % 2 != 0) {
-                    } else {
-                    }
-
-                }
-
-                WHAT_STOP_TIMER -> {
-
-                }
-            }
-            true
-        }
-    }
 
     private var mCameraMode = CaptureMediaView.CaptureMode.MODE_CAPTURE_PIC
 
@@ -261,74 +236,7 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
             CaptureMediaView.CaptureMode.MODE_CAPTURE_PIC -> {
                 captureImage()
             }
-
-            CaptureMediaView.CaptureMode.MODE_CAPTURE_AUDIO -> {
-                captureAudio()
-            }
-
-            else -> {
-                captureVideo()
-            }
         }
-    }
-
-    private fun captureAudio() {
-        if (isCapturingVideoOrAudio) {
-            captureAudioStop()
-            return
-        }
-        captureAudioStart(object : ICaptureCallBack {
-            override fun onBegin() {
-                isCapturingVideoOrAudio = true
-                mViewBinding.captureBtn.setCaptureVideoState(CaptureMediaView.CaptureVideoState.DOING)
-                startMediaTimer()
-            }
-
-            override fun onError(error: String?) {
-                ToastUtils.show(error ?: "未知异常")
-                isCapturingVideoOrAudio = false
-                mViewBinding.captureBtn.setCaptureVideoState(CaptureMediaView.CaptureVideoState.UNDO)
-                stopMediaTimer()
-            }
-
-            override fun onComplete(path: String?) {
-                isCapturingVideoOrAudio = false
-                mViewBinding.captureBtn.setCaptureVideoState(CaptureMediaView.CaptureVideoState.UNDO)
-                stopMediaTimer()
-                ToastUtils.show(path ?: "error")
-            }
-
-        })
-    }
-
-    private fun captureVideo() {
-        if (isCapturingVideoOrAudio) {
-            captureVideoStop()
-            return
-        }
-        captureVideoStart(object : ICaptureCallBack {
-            override fun onBegin() {
-                isCapturingVideoOrAudio = true
-                mViewBinding.captureBtn.setCaptureVideoState(CaptureMediaView.CaptureVideoState.DOING)
-                startMediaTimer()
-            }
-
-            override fun onError(error: String?) {
-                ToastUtils.show(error ?: "未知异常")
-                isCapturingVideoOrAudio = false
-                mViewBinding.captureBtn.setCaptureVideoState(CaptureMediaView.CaptureVideoState.UNDO)
-                stopMediaTimer()
-            }
-
-            override fun onComplete(path: String?) {
-                ToastUtils.show(path ?: "")
-                isCapturingVideoOrAudio = false
-                mViewBinding.captureBtn.setCaptureVideoState(CaptureMediaView.CaptureVideoState.UNDO)
-                showRecentMedia(false)
-                stopMediaTimer()
-            }
-
-        })
     }
 
     private fun captureImage() {
@@ -351,156 +259,9 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         super.onDestroyView()
     }
 
-    override fun onClick(v: View?) {
-//        if (! isCameraOpened()) {
-//            ToastUtils.show("camera not worked!")
-//            return
-//        }
-        clickAnimation(v!!, object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
-                when (v) {
-                    mMoreBindingView.contact, mMoreBindingView.contactText -> {
-                        showContactDialog()
-                    }
-
-                    else -> {
-                    }
-                }
-            }
-        })
-    }
-
-    @SuppressLint("CheckResult")
-    private fun showUsbDevicesDialog(
-        usbDeviceList: MutableList<UsbDevice>?,
-        curDevice: UsbDevice?
-    ) {
-        if (usbDeviceList.isNullOrEmpty()) {
-            ToastUtils.show("Get usb device failed")
-            return
-        }
-        val list = arrayListOf<String>()
-        var selectedIndex: Int = -1
-        for (index in (0 until usbDeviceList.size)) {
-            val dev = usbDeviceList[index]
-            val devName =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !dev.productName.isNullOrEmpty()) {
-                    "${dev.productName}(${curDevice?.deviceId})"
-                } else {
-                    dev.deviceName
-                }
-            val curDevName =
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !curDevice?.productName.isNullOrEmpty()) {
-                    "${curDevice!!.productName}(${curDevice.deviceId})"
-                } else {
-                    curDevice?.deviceName
-                }
-            if (devName == curDevName) {
-                selectedIndex = index
-            }
-            list.add(devName)
-        }
-        MaterialDialog(requireContext()).show {
-            listItemsSingleChoice(
-                items = list,
-                initialSelection = selectedIndex
-            ) { dialog, index, text ->
-                if (selectedIndex == index) {
-                    return@listItemsSingleChoice
-                }
-                switchCamera(usbDeviceList[index])
-            }
-        }
-    }
 
 
-    @SuppressLint("CheckResult")
-    private fun showResolutionDialog() {
-        mMoreMenu?.dismiss()
-        getAllPreviewSizes().let { previewSizes ->
-            if (previewSizes.isNullOrEmpty()) {
-                ToastUtils.show("Get camera preview size failed")
-                return
-            }
-            val list = arrayListOf<String>()
-            var selectedIndex: Int = -1
-            for (index in (0 until previewSizes.size)) {
-                val w = previewSizes[index].width
-                val h = previewSizes[index].height
-                getCurrentPreviewSize()?.apply {
-                    if (width == w && height == h) {
-                        selectedIndex = index
-                    }
-                }
-                list.add("$w x $h")
-            }
-            MaterialDialog(requireContext()).show {
-                listItemsSingleChoice(
-                    items = list,
-                    initialSelection = selectedIndex
-                ) { dialog, index, text ->
-                    if (selectedIndex == index) {
-                        return@listItemsSingleChoice
-                    }
-                    updateResolution(previewSizes[index].width, previewSizes[index].height)
-                }
-            }
-        }
-    }
 
-
-    private fun showContactDialog() {
-        mMoreMenu?.dismiss()
-        MaterialDialog(requireContext()).show {
-            title(R.string.dialog_contact_title)
-            message(text = getString(R.string.dialog_contact_message, getVersionName()))
-        }
-    }
-
-    private fun getVersionName(): String? {
-        context ?: return null
-        val packageManager = requireContext().packageManager
-        try {
-            val packageInfo = packageManager?.getPackageInfo(requireContext().packageName, 0)
-            return packageInfo?.versionName
-        } catch (e: PackageManager.NameNotFoundException) {
-            e.printStackTrace()
-        }
-        return null
-    }
-
-    private fun goToGalley() {
-        try {
-            Intent(
-                Intent.ACTION_VIEW,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            ).apply {
-                startActivity(this)
-            }
-        } catch (e: Exception) {
-            ToastUtils.show("open error: ${e.localizedMessage}")
-        }
-    }
-
-    private fun playMic() {
-        if (isPlayingMic) {
-            stopPlayMic()
-            return
-        }
-        startPlayMic(object : IPlayCallBack {
-            override fun onBegin() {
-                isPlayingMic = true
-            }
-
-            override fun onError(error: String) {
-                isPlayingMic = false
-            }
-
-            override fun onComplete() {
-                isPlayingMic = false
-            }
-        })
-    }
 
     private fun showRecentMedia(isImage: Boolean? = null) {
         lifecycleScope.launch(Dispatchers.IO) {
@@ -547,122 +308,8 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         }
     }
 
-    private fun clickAnimation(v: View, listener: Animator.AnimatorListener) {
-        val scaleXAnim: ObjectAnimator = ObjectAnimator.ofFloat(v, "scaleX", 1.0f, 0.4f, 1.0f)
-        val scaleYAnim: ObjectAnimator = ObjectAnimator.ofFloat(v, "scaleY", 1.0f, 0.4f, 1.0f)
-        val alphaAnim: ObjectAnimator = ObjectAnimator.ofFloat(v, "alpha", 1.0f, 0.4f, 1.0f)
-        val animatorSet = AnimatorSet()
-        animatorSet.duration = 150
-        animatorSet.addListener(listener)
-        animatorSet.playTogether(scaleXAnim, scaleYAnim, alphaAnim)
-        animatorSet.start()
-    }
 
-    private fun showMoreMenu() {
-        if (mMoreMenu == null) {
-            layoutInflater.inflate(R.layout.dialog_more, null).apply {
-                mMoreBindingView = DialogMoreBinding.bind(this)
-                mMoreBindingView.multiplex.setOnClickListener(this@DemoFragment)
-                mMoreBindingView.multiplexText.setOnClickListener(this@DemoFragment)
-                mMoreBindingView.contact.setOnClickListener(this@DemoFragment)
-                mMoreBindingView.contactText.setOnClickListener(this@DemoFragment)
-                mMoreBindingView.resolution.setOnClickListener(this@DemoFragment)
-                mMoreBindingView.resolutionText.setOnClickListener(this@DemoFragment)
-                mMoreBindingView.contract.setOnClickListener(this@DemoFragment)
-                mMoreBindingView.contractText.setOnClickListener(this@DemoFragment)
-                mMoreMenu = PopupWindow(
-                    this,
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    true
-                ).apply {
-                    isOutsideTouchable = true
-                    setBackgroundDrawable(
-                        ContextCompat.getDrawable(
-                            requireContext(),
-                            R.mipmap.camera_icon_one_inch_alpha
-                        )
-                    )
-                }
-            }
-        }
-        try {
-        } catch (e: Exception) {
-            Logger.e(TAG, "showMoreMenu fail", e)
-        }
-    }
 
-    private fun startMediaTimer() {
-        val pushTask: TimerTask = object : TimerTask() {
-            override fun run() {
-                //秒
-                mRecSeconds++
-                //分
-                if (mRecSeconds >= 60) {
-                    mRecSeconds = 0
-                    mRecMinute++
-                }
-                //时
-                if (mRecMinute >= 60) {
-                    mRecMinute = 0
-                    mRecHours++
-                    if (mRecHours >= 24) {
-                        mRecHours = 0
-                        mRecMinute = 0
-                        mRecSeconds = 0
-                    }
-                }
-                mMainHandler.sendEmptyMessage(WHAT_START_TIMER)
-            }
-        }
-        if (mRecTimer != null) {
-            stopMediaTimer()
-        }
-        mRecTimer = Timer()
-        //执行schedule后1s后运行run，之后每隔1s运行run
-        mRecTimer?.schedule(pushTask, 1000, 1000)
-    }
-
-    private fun stopMediaTimer() {
-        if (mRecTimer != null) {
-            mRecTimer?.cancel()
-            mRecTimer = null
-        }
-        mRecHours = 0
-        mRecMinute = 0
-        mRecSeconds = 0
-        mMainHandler.sendEmptyMessage(WHAT_STOP_TIMER)
-    }
-
-    private fun calculateTime(seconds: Int, minute: Int, hour: Int? = null): String {
-        val mBuilder = java.lang.StringBuilder()
-        //时
-        if (hour != null) {
-            if (hour < 10) {
-                mBuilder.append("0")
-                mBuilder.append(hour)
-            } else {
-                mBuilder.append(hour)
-            }
-            mBuilder.append(":")
-        }
-        // 分
-        if (minute < 10) {
-            mBuilder.append("0")
-            mBuilder.append(minute)
-        } else {
-            mBuilder.append(minute)
-        }
-        //秒
-        mBuilder.append(":")
-        if (seconds < 10) {
-            mBuilder.append("0")
-            mBuilder.append(seconds)
-        } else {
-            mBuilder.append(seconds)
-        }
-        return mBuilder.toString()
-    }
 
     companion object {
         private const val TAG = "DemoFragment"
