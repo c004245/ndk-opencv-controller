@@ -59,8 +59,6 @@ import com.jiangdg.ausbc.utils.bus.EventBus
 import com.jiangdg.utils.imageloader.ILoader
 import com.jiangdg.utils.imageloader.ImageLoaders
 import com.jiangdg.ausbc.widget.*
-import com.jiangdg.demo.EffectListDialog.Companion.KEY_ANIMATION
-import com.jiangdg.demo.EffectListDialog.Companion.KEY_FILTER
 import com.jiangdg.demo.databinding.DialogMoreBinding
 import com.jiangdg.utils.MMKVUtils
 import kotlinx.coroutines.Dispatchers
@@ -72,7 +70,6 @@ import java.util.*
  * @author Created by jiangdg on 2022/1/28
  */
 class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.OnViewClickListener {
-    private var mMultiCameraDialog: MultiCameraDialog? = null
     private lateinit var mMoreBindingView: DialogMoreBinding
     private var mMoreMenu: PopupWindow? = null
     private var isCapturingVideoOrAudio: Boolean = false
@@ -122,7 +119,7 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
 
     private val mMainHandler: Handler by lazy {
         Handler(Looper.getMainLooper()) {
-            when(it.what) {
+            when (it.what) {
                 WHAT_START_TIMER -> {
                     if (mRecSeconds % 2 != 0) {
                         mViewBinding.recStateIv.visibility = View.VISIBLE
@@ -131,6 +128,7 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
                     }
                     mViewBinding.recTimeTv.text = calculateTime(mRecSeconds, mRecMinute)
                 }
+
                 WHAT_STOP_TIMER -> {
                     mViewBinding.modeSwitchLayout.visibility = View.VISIBLE
                     mViewBinding.toolbarGroup.visibility = View.VISIBLE
@@ -168,10 +166,10 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
             mViewBinding.frameRateTv.text = "frame rate:  $it fps"
         })
 
-        EventBus.with<Boolean>(BusKey.KEY_RENDER_READY).observe(this, { ready ->
-            if (! ready) return@observe
+        EventBus.with<Boolean>(BusKey.KEY_RENDER_READY).observe(this) { ready ->
+            if (!ready) return@observe
             getDefaultEffect()?.apply {
-                when(getClassifyId()) {
+                when (getClassifyId()) {
                     CameraEffect.CLASSIFY_ID_FILTER -> {
                         // check if need to set anim
                         val animId = MMKVUtils.getInt(KEY_ANIMATION, -99)
@@ -199,6 +197,7 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
                         }
                         MMKVUtils.set(KEY_FILTER, getId())
                     }
+
                     CameraEffect.CLASSIFY_ID_ANIMATION -> {
                         // check if need to set filter
                         val filterId = MMKVUtils.getInt(KEY_ANIMATION, -99)
@@ -226,10 +225,11 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
                         }
                         MMKVUtils.set(KEY_ANIMATION, getId())
                     }
+
                     else -> throw IllegalStateException("Unsupported classify")
                 }
             }
-        })
+        }
     }
 
     override fun onCameraState(
@@ -304,7 +304,7 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
     override fun getGravity(): Int = Gravity.CENTER
 
     override fun onViewClick(mode: CaptureMediaView.CaptureMode?) {
-        if (! isCameraOpened()) {
+        if (!isCameraOpened()) {
             ToastUtils.show("camera not worked!")
             return
         }
@@ -312,9 +312,11 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
             CaptureMediaView.CaptureMode.MODE_CAPTURE_PIC -> {
                 captureImage()
             }
+
             CaptureMediaView.CaptureMode.MODE_CAPTURE_AUDIO -> {
                 captureAudio()
             }
+
             else -> {
                 captureVideo()
             }
@@ -423,7 +425,6 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
 
     override fun onDestroyView() {
         super.onDestroyView()
-        mMultiCameraDialog?.hide()
     }
 
     override fun onClick(v: View?) {
@@ -442,30 +443,30 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
                             }
                         }
                     }
-                    mViewBinding.effectsBtn -> {
-                        showEffectDialog()
-                    }
+
                     mViewBinding.cameraTypeBtn -> {
                     }
+
                     mViewBinding.settingsBtn -> {
                         showMoreMenu()
                     }
+
                     mViewBinding.voiceBtn -> {
                         playMic()
                     }
+
                     mViewBinding.resolutionBtn -> {
                         showResolutionDialog()
                     }
+
                     mViewBinding.albumPreviewIv -> {
                         goToGalley()
                     }
-                    // more settings
-                    mMoreBindingView.multiplex, mMoreBindingView.multiplexText -> {
-                        goToMultiplexActivity()
-                    }
+
                     mMoreBindingView.contact, mMoreBindingView.contactText -> {
                         showContactDialog()
                     }
+
                     else -> {
                     }
                 }
@@ -474,7 +475,10 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
     }
 
     @SuppressLint("CheckResult")
-    private fun showUsbDevicesDialog(usbDeviceList: MutableList<UsbDevice>?, curDevice: UsbDevice?) {
+    private fun showUsbDevicesDialog(
+        usbDeviceList: MutableList<UsbDevice>?,
+        curDevice: UsbDevice?
+    ) {
         if (usbDeviceList.isNullOrEmpty()) {
             ToastUtils.show("Get usb device failed")
             return
@@ -483,16 +487,18 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         var selectedIndex: Int = -1
         for (index in (0 until usbDeviceList.size)) {
             val dev = usbDeviceList[index]
-            val devName = if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.LOLLIPOP && !dev.productName.isNullOrEmpty()) {
-                "${dev.productName}(${curDevice?.deviceId})"
-            } else {
-                dev.deviceName
-            }
-            val curDevName = if (Build.VERSION.SDK_INT >=Build.VERSION_CODES.LOLLIPOP && !curDevice?.productName.isNullOrEmpty()) {
-                "${curDevice!!.productName}(${curDevice.deviceId})"
-            } else {
-                curDevice?.deviceName
-            }
+            val devName =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !dev.productName.isNullOrEmpty()) {
+                    "${dev.productName}(${curDevice?.deviceId})"
+                } else {
+                    dev.deviceName
+                }
+            val curDevName =
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && !curDevice?.productName.isNullOrEmpty()) {
+                    "${curDevice!!.productName}(${curDevice.deviceId})"
+                } else {
+                    curDevice?.deviceName
+                }
             if (devName == curDevName) {
                 selectedIndex = index
             }
@@ -511,30 +517,6 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         }
     }
 
-    private fun showEffectDialog() {
-        EffectListDialog(requireActivity()).apply {
-            setData(mEffectDataList, object : EffectListDialog.OnEffectClickListener {
-                override fun onEffectClick(effect: CameraEffect) {
-                    mEffectDataList.find {it.id == effect.id}.also {
-                        if (it == null) {
-                            ToastUtils.show("set effect failed!")
-                            return@also
-                        }
-                        updateRenderEffect(it.classifyId, it.effect)
-                        // save to sp
-                        if (effect.classifyId == CameraEffect.CLASSIFY_ID_ANIMATION) {
-                            KEY_ANIMATION
-                        } else {
-                            KEY_FILTER
-                        }.also { key ->
-                            MMKVUtils.set(key, effect.id)
-                        }
-                    }
-                }
-            })
-            show()
-        }
-    }
 
     @SuppressLint("CheckResult")
     private fun showResolutionDialog() {
@@ -570,17 +552,6 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         }
     }
 
-    private fun goToMultiplexActivity() {
-        mMoreMenu?.dismiss()
-        mMultiCameraDialog = MultiCameraDialog()
-        mMultiCameraDialog?.setOnDismissListener(object : BaseBottomDialog.OnDismissListener {
-            override fun onDismiss() {
-                registerMultiCamera()
-            }
-        })
-        mMultiCameraDialog?.show(childFragmentManager, "multiRoadCameras")
-        unRegisterMultiCamera()
-    }
 
     private fun showContactDialog() {
         mMoreMenu?.dismiss()
@@ -590,7 +561,7 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
         }
     }
 
-    private  fun getVersionName(): String? {
+    private fun getVersionName(): String? {
         context ?: return null
         val packageManager = requireContext().packageManager
         try {
@@ -641,7 +612,7 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
     private fun showRecentMedia(isImage: Boolean? = null) {
         lifecycleScope.launch(Dispatchers.IO) {
             context ?: return@launch
-            if (! isFragmentAttached()) {
+            if (!isFragmentAttached()) {
                 return@launch
             }
             try {
@@ -773,7 +744,10 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
                 ).apply {
                     isOutsideTouchable = true
                     setBackgroundDrawable(
-                        ContextCompat.getDrawable(requireContext(), R.mipmap.camera_icon_one_inch_alpha)
+                        ContextCompat.getDrawable(
+                            requireContext(),
+                            R.mipmap.camera_icon_one_inch_alpha
+                        )
                     )
                 }
             }
@@ -858,8 +832,12 @@ class DemoFragment : CameraFragment(), View.OnClickListener, CaptureMediaView.On
     }
 
     companion object {
-        private const val TAG  = "DemoFragment"
+        private const val TAG = "DemoFragment"
         private const val WHAT_START_TIMER = 0x00
         private const val WHAT_STOP_TIMER = 0x01
+
+        const val KEY_FILTER = "filter"
+        const val KEY_ANIMATION = "animation"
+
     }
 }
