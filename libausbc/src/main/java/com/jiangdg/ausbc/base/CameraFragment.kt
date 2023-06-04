@@ -171,8 +171,6 @@ abstract class CameraFragment : BaseFragment(), ICameraStateCallBack {
         mCameraClient = null
     }
 
-    protected fun getDeviceList() = mCameraClient?.getDeviceList()
-
     private fun handleTextureView(textureView: TextureView) {
         textureView.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
             override fun onSurfaceTextureAvailable(
