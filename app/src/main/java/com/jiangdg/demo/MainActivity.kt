@@ -18,6 +18,8 @@ package com.jiangdg.demo
 import android.Manifest.permission.*
 import android.os.Bundle
 import android.os.PowerManager
+import android.util.Log
+import android.view.KeyEvent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.PermissionChecker
@@ -126,5 +128,10 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private const val REQUEST_CAMERA = 0
         private const val REQUEST_STORAGE = 1
+    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        Log.d("HWO", "onKeyDown -> $keyCode")
+        return super.onKeyDown(keyCode, event)
     }
 }

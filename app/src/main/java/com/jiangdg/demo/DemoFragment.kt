@@ -70,36 +70,6 @@ import java.util.*
  * @author Created by jiangdg on 2022/1/28
  */
 class DemoFragment : CameraFragment(), CaptureMediaView.OnViewClickListener {
-    private var isCapturingVideoOrAudio: Boolean = false
-
-
-    private val mEffectDataList by lazy {
-        arrayListOf(
-            CameraEffect.NONE_FILTER,
-            CameraEffect(
-                EffectBlackWhite.ID,
-                "BlackWhite",
-                CameraEffect.CLASSIFY_ID_FILTER,
-                effect = EffectBlackWhite(requireActivity()),
-                coverResId = R.mipmap.filter0
-            ),
-            CameraEffect.NONE_ANIMATION,
-            CameraEffect(
-                EffectZoom.ID,
-                "Zoom",
-                CameraEffect.CLASSIFY_ID_ANIMATION,
-                effect = EffectZoom(requireActivity()),
-                coverResId = R.mipmap.filter2
-            ),
-            CameraEffect(
-                EffectSoul.ID,
-                "Soul",
-                CameraEffect.CLASSIFY_ID_ANIMATION,
-                effect = EffectSoul(requireActivity()),
-                coverResId = R.mipmap.filter1
-            ),
-        )
-    }
 
 
     private var mCameraMode = CaptureMediaView.CaptureMode.MODE_CAPTURE_PIC
