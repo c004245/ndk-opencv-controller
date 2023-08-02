@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         setStatusBar()
         viewBinding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(viewBinding.root)
-        replaceDemoFragment(DemoFragment())
+        replaceDemoFragment(DemoMultiCameraFragment())
     }
 
     override fun onStart() {
