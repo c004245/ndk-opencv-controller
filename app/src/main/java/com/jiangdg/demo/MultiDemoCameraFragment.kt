@@ -2,6 +2,7 @@ package com.jiangdg.demo
 
 import android.content.Context
 import android.hardware.usb.UsbDevice
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -32,6 +33,7 @@ class DemoMultiCameraFragment : MultiCameraFragment(), ICameraStateCallBack {
         ArrayList<MultiCameraClient.ICamera>()
     }
 
+
     override fun onCameraAttached(camera: MultiCameraClient.ICamera) {
         mAdapter.data.add(camera)
         mAdapter.notifyItemInserted(mAdapter.data.size - 1)
@@ -60,6 +62,9 @@ class DemoMultiCameraFragment : MultiCameraFragment(), ICameraStateCallBack {
     override fun onCameraConnected(camera: MultiCameraClient.ICamera) {
         for ((position, cam) in mAdapter.data.withIndex()) {
             if (cam.getUsbDevice().deviceId == camera.getUsbDevice().deviceId) {
+                Log.d("HWO", "onCameraConnected -> ${cam.getUsbDevice().deviceName} -- ${cam.getUsbDevice().deviceId}")
+                Log.d("HWO", "onCameraConnected 222-> ${camera.getUsbDevice().deviceId}")
+
                 val textureView = mAdapter.getViewByPosition(position, R.id.multi_camera_texture_view)
                 cam.openCamera(textureView, getCameraRequest())
                 cam.setCameraStateCallBack(this)
@@ -119,6 +124,7 @@ class DemoMultiCameraFragment : MultiCameraFragment(), ICameraStateCallBack {
                         }
 
                         override fun onComplete(path: String?) {
+                            Log.d("HWO", "capture COmplete --> $path")
                             ToastUtils.show(path ?: "capture image success")
                         }
                     })
@@ -140,6 +146,7 @@ class DemoMultiCameraFragment : MultiCameraFragment(), ICameraStateCallBack {
 
                         override fun onComplete(path: String?) {
                             mAdapter.notifyItemChanged(position, "video")
+                            Log.d("HWO", "capture COmplete222")
                             ToastUtils.show(path ?: "capture video success")
                         }
                     })
@@ -147,6 +154,40 @@ class DemoMultiCameraFragment : MultiCameraFragment(), ICameraStateCallBack {
                 else -> {
                 }
             }
+        }
+        mViewBinding.captureBtn.setOnClickListener {
+            Log.d("HWO", "mViewBinding captureBtn -> ${mAdapter.data.size}")
+            mAdapter.data.get(0).captureImage(object: ICaptureCallBack {
+                override fun onBegin() {
+
+                }
+
+                override fun onError(error: String?) {
+
+                }
+
+                override fun onComplete(path: String?) {
+                    Log.d("HWO", "onComplete path 0-> $path")
+                }
+
+            })
+
+            mAdapter.data.get(1).captureImage(object: ICaptureCallBack {
+                override fun onBegin() {
+
+                }
+
+                override fun onError(error: String?) {
+
+                }
+
+                override fun onComplete(path: String?) {
+                    Log.d("HWO", "onComplete path 1-> $path")
+                }
+
+            })
+
+
         }
     }
 
