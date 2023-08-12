@@ -157,35 +157,50 @@ class DemoMultiCameraFragment : MultiCameraFragment(), ICameraStateCallBack {
         }
         mViewBinding.captureBtn.setOnClickListener {
             Log.d("HWO", "mViewBinding captureBtn -> ${mAdapter.data.size}")
-            mAdapter.data.get(0).captureImage(object: ICaptureCallBack {
-                override fun onBegin() {
+            mAdapter.data.map {
+                it.captureImage(object : ICaptureCallBack {
+                    override fun onBegin() {
 
-                }
+                    }
 
-                override fun onError(error: String?) {
+                    override fun onError(error: String?) {
+                    }
 
-                }
+                    override fun onComplete(path: String?) {
+                        Log.d("HWO", "onComplete value -> $path")
+                    }
 
-                override fun onComplete(path: String?) {
-                    Log.d("HWO", "onComplete path 0-> $path")
-                }
+                });
+            }
 
-            })
+//            mAdapter.data.get(0).captureImage(object: ICaptureCallBack {
+//                override fun onBegin() {
+//
+//                }
+//
+//                override fun onError(error: String?) {
+//
+//                }
 
-            mAdapter.data.get(1).captureImage(object: ICaptureCallBack {
-                override fun onBegin() {
-
-                }
-
-                override fun onError(error: String?) {
-
-                }
-
-                override fun onComplete(path: String?) {
-                    Log.d("HWO", "onComplete path 1-> $path")
-                }
-
-            })
+//                override fun onComplete(path: String?) {
+//                    Log.d("HWO", "onComplete path 0-> $path")
+//                }
+//            })
+//
+//            mAdapter.data.get(1).captureImage(object: ICaptureCallBack {
+//                override fun onBegin() {
+//
+//                }
+//
+//                override fun onError(error: String?) {
+//
+///                }
+//
+//                override fun onComplete(path: String?) {
+//                    Log.d("HWO", "onComplete path 1-> $path")
+//                }
+//
+//            })
 
 
         }

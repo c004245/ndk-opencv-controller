@@ -63,7 +63,15 @@ dependencies {
 
     // For debug online
     implementation project(':libausbc')
+//    //rx
+    implementation "io.reactivex:rxandroid:1.2.1"
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    implementation 'io.reactivex.rxjava3:rxjava:3.0.6'
+    implementation 'io.reactivex.rxjava3:rxkotlin:3.0.1'
+    implementation "com.squareup.retrofit2:adapter-rxjava3:2.9.0"
 
+    compileOnly 'org.projectlombok:lombok:1.18.8'                               // Lombok
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
     // demo
 //    implementation 'com.github.jiangdongguo.AndroidUSBCamera:libausbc:3.3.3'
 }
